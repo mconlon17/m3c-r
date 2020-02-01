@@ -1,0 +1,110 @@
+library(rdflib)
+m3c<-rdf_parse("2020_02_22-fixed.nt")
+
+q.subjects <-'
+SELECT ?s (COUNT (*) AS ?ns)
+WHERE { 
+    ?s ?p ?o .
+    }
+GROUP BY ?s
+ORDER BY ?ns
+'
+
+q.predicates <-'
+SELECT ?p (COUNT (*) AS ?np)
+WHERE { 
+    ?s ?p ?o .
+    }
+GROUP BY ?p
+ORDER BY ?np
+'
+
+q.objects <-'
+SELECT ?o (COUNT (*) AS ?no)
+WHERE { 
+    ?s ?p ?o .
+    }
+GROUP BY ?o
+ORDER BY ?no
+'
+
+q.all <- 'SELECT (COUNT(?s) AS ?triples) WHERE { ?s ?p ?o }'
+
+q.inspect <-'
+SELECT ?p ?o
+WHERE { 
+    <https://vivo.metabolomics.info/individual/p709r31729236> ?p ?o .
+    }
+'
+
+q.inspect2 <-'
+SELECT ?p ?o ?a ?b
+WHERE { 
+    <https://vivo.metabolomics.info/individual/pmid25037966> ?p ?o .
+    ?o ?a ?b .
+    }
+'
+
+q.counts<-'
+SELECT ?ns ?np ?no
+WHERE {
+	{
+	SELECT (COUNT(DISTINCT ?s) AS ?ns)
+	WHERE { 
+		?s ?p ?o .
+		}
+	}
+	
+	{
+	SELECT (COUNT(DISTINCT ?p) AS ?np)
+	WHERE { 
+		?s ?p ?o .
+		}
+	}
+
+	{
+	SELECT (COUNT(DISTINCT ?o) AS ?no)
+	WHERE { 
+		?s ?p ?o .
+		}
+	}
+}
+'
+
+q.pubs<-'
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX bibo: <http://purl.org/ontology/bibo/>
+SELECT ?a ?title ?doi
+WHERE {
+  ?a a bibo:Article .
+  ?a rdfs:label ?title .
+  ?a bibo:doi ?doi .
+  }
+'
+
+q.people<-'
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?a ?name
+WHERE {
+  ?a a foaf:Person .
+  ?a rdfs:label ?name .
+  }
+'
+
+q.pubsbyauthor<-'
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX vivo:     <http://vivoweb.org/ontology/core#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX bibo: <http://purl.org/ontology/bibo/>
+SELECT ?name (COUNT (DISTINCT ?a) AS ?npubs)
+WHERE {
+  ?person a foaf:Person .
+  ?person rdfs:label ?name .
+  ?person vivo:relatedBy ?a .
+  ?a a vivo:Authorship .
+}
+GROUP BY ?person
+ORDER BY DESC(?npubs)
+'
+
