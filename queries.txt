@@ -1,6 +1,3 @@
-library(rdflib)
-m3c<-rdf_parse("2020_02_22-fixed.nt")
-
 q.subjects <-'
 SELECT ?s (COUNT (*) AS ?ns)
 WHERE { 
@@ -66,6 +63,34 @@ WHERE {
 	SELECT (COUNT(DISTINCT ?o) AS ?no)
 	WHERE { 
 		?s ?p ?o .
+		}
+	}
+}
+'
+
+q.entities<-'
+PREFIX bibo: <http://purl.org/ontology/bibo/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?ns ?np ?no
+WHERE {
+	{
+	SELECT (COUNT(DISTINCT ?person) AS ?npeople)
+	WHERE { 
+  		?person a foaf:Person .
+		}
+	}
+	
+	{
+	SELECT (COUNT(DISTINCT ?article) AS ?narticles)
+	WHERE { 
+  		?article a bibo:Article .
+		}
+	}
+
+	{
+	SELECT (COUNT(DISTINCT ?org) AS ?norgs)
+	WHERE { 
+		?org a foaf:Organization .
 		}
 	}
 }
